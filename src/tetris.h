@@ -9,15 +9,16 @@
 
 class Tetris {
 
-    public: 
+    private:
+        int points[4] = {40, 100, 300, 1200}; 
         int score = 0;
         uint8_t rotation = 0;
         uint8_t lx = 4;
         uint8_t ly = 0;
-        int8_t y_pos[4] = {-1,-1,-1,-1}; // Stores the current used Y position for the active piece
-        uint8_t y_pos_index = 0;
         uint8_t id = 0;
-                                                                                        ///   -Y      
+        int8_t matrix[MATRIX_W][MATRIX_H] = {0}; // 0 clean; 1 current; 2 solid
+        int8_t current_piece[4][2] = {0};
+                                                                                        ///   -Y     
         int8_t positions[7][4][4][2] = { //  Ordered from lowest to highest Y value    /// +X  0  -X
             {                                                                          ///    +Y
                 {{-2,0},{-1,0},{0,0},{1,0}}, // I
@@ -62,9 +63,6 @@ class Tetris {
                 {{1,1},{1,0},{0,0},{0,-1}}
             }
         };
-
-        int8_t matrix[MATRIX_W][MATRIX_H] = {0}; // 0 clean; 1 current; 2 solid
-        int8_t current_piece[4][2] = {0};
 
         void cleanMatrix(){
             for(uint8_t x = 0; x < MATRIX_W; x++){
@@ -238,12 +236,13 @@ class Tetris {
         void check_complete_lines(int8_t min_y){
             
             int8_t top = 0; 
-
+            uint8_t ipoints = 0;
             for (int8_t i = min_y; i > top; i--){
                 if (isLineComplete(i)){
+                    score += points[ipoints]; 
                     remove_line(i);
-                    //top++;
-                    i++; // Check this line again as blocks will be updated
+                    i++;
+                    ipoints++;
                     drawScreen();
                 }
             }
@@ -274,8 +273,8 @@ class Tetris {
                 ly += 1;
 
             }else{ //If collided store previous collision as final
-                fill(y_pos,4,-1);
-                y_pos_index = 0;
+                //fill(y_pos,4,-1);
+                //y_pos_index = 0;
                 int8_t max_y = -1;            
 
                 for(uint8_t i = 0; i < 4; i++){ // For each piece 
@@ -379,7 +378,17 @@ class Tetris {
             clearMatrix();
             rotation = 0;
         }
+   
+        void clearMatrix(){
 
+            for(uint8_t x = 0; x < MATRIX_W; x++){
+                for(uint8_t y = 0; y < MATRIX_H; y++){
+                        matrix[x][y] = 0;
+                    }
+            };
+        }
+   
+    public:
         void start_game(){
             uint8_t status = 0;
             int waitTime = DWAIT;
@@ -445,15 +454,6 @@ class Tetris {
                 }
             }
             draw_gameover();
-        }
-
-        void clearMatrix(){
-
-            for(uint8_t x = 0; x < MATRIX_W; x++){
-                for(uint8_t y = 0; y < MATRIX_H; y++){
-                        matrix[x][y] = 0;
-                    }
-            };
         }
 
 };
