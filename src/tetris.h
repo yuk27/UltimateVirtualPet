@@ -1,13 +1,16 @@
 #include "display.h"
+#include "utilities.h"
 #define MATRIX_W 8
 #define MATRIX_H 16
+#define BOXSIZE 8
+#define DWAIT 1000
+#define ACCEL 100
+
 
 class Tetris {
 
     public: 
         int score = 0;
-        uint8_t boxSize = 8;
-        uint8_t status = -1;
         uint8_t rotation = 0;
         uint8_t lx = 4;
         uint8_t ly = 0;
@@ -286,10 +289,8 @@ class Tetris {
                     matrix[x][y] = 2;
                     max_y = y > max_y ? y : max_y;
                 }
-                //printMatrix();
                 check_complete_lines(max_y);
             }
-            //printMatrix();
             return collision; 
         }
 
@@ -329,7 +330,7 @@ class Tetris {
             for(uint8_t x = 0; x < MATRIX_W; x++){
                 for(uint8_t y = 0; y < MATRIX_H; y++){
                     if(matrix[x][y] > 0){
-                        drawBox(y*boxSize,x*boxSize,true);
+                        drawBox(y*BOXSIZE,x*BOXSIZE,true);
                     }
                 }
             }
@@ -338,7 +339,7 @@ class Tetris {
         }
 
         void drawBox(uint8_t x, uint8_t y, bool fill){
-            drawBox(x,y,boxSize, fill);
+            drawBox(x,y,BOXSIZE, fill);
         };
 
         void drawBox(uint8_t x, uint8_t y, uint8_t size, bool fill){
@@ -352,8 +353,8 @@ class Tetris {
         };
 
         void draw_grid(){
-            for (uint8_t y = 0; y < SCREEN_HEIGHT; y+=boxSize){
-                for (uint8_t x = 0; x < SCREEN_WIDTH; x+=boxSize){
+            for (uint8_t y = 0; y < SCREEN_HEIGHT; y+=BOXSIZE){
+                for (uint8_t x = 0; x < SCREEN_WIDTH; x+=BOXSIZE){
                     drawBox(x,y,false);
                 }
             }
@@ -376,29 +377,74 @@ class Tetris {
             ly = 0;
 
             clearMatrix();
-
-            status = 0;
             rotation = 0;
         }
 
-        void start_games(){
+        void start_game(){
+            uint8_t status = 0;
+            int waitTime = DWAIT;
+            unsigned long ntime = 0;
+            uint8_t btn[4] = {1,1,1,1};
+            uint8_t pbtn[4] = {1,1,1,1};    
+            uint8_t piecesCounter = 0;
 
-            drawScreen();
-            while (status < 2){
-                if (status == 0){
-                    delay(50);
+            draw_grid();
+
+            while(status < 2){
+
+                id = random(6);
+                add_piece(id,0,0); 
+                piecesCounter++;
+                if(piecesCounter > 4){
+                    piecesCounter = 0; 
+                    
+                    if((waitTime -= ACCEL) >= 0){
+                        waitTime -= ACCEL;
+                    }
                 }
-                else{
-                    add_piece(0,0); 
-                    status = 0;
+
+                status = 0;
+                while (status < 1)
+                {
+                    if (ntime < millis()){
+                        status = moveY();
+                        ntime = millis() + waitTime;
+                    }
+                    else{
+
+                        btn[0] = digitalRead(IPIN0);
+                        btn[1] = digitalRead(IPIN1);
+                        btn[2] = digitalRead(IPIN2);
+                        btn[3] = digitalRead(IPIN3);
+
+                        if(btn[0] == 0 && pbtn[0] == 1){
+                            rotate(id);
+                        }
+
+                        if(btn[1] == 0){
+                            moveX(1);
+                        }
+                        
+                        if(btn[2] == 0){
+                            moveX(-1);
+                        }
+
+                        if(btn[3] == 0){
+                            status = moveY();
+                            ntime = millis() + waitTime;
+                        }
+                        drawScreen();
+
+                        pbtn[0] = btn[0];
+                        pbtn[1] = btn[1];
+                        pbtn[2] = btn[2];
+                        pbtn[3] = btn[3];
+
+                    }
+                    drawScreen();
                 }
-                drawScreen();
-                status = moveY();
             }
-
-            display.clearDisplay();
             draw_gameover();
-            display.display();      
         }
 
         void clearMatrix(){

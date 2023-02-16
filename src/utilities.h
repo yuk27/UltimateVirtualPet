@@ -3,6 +3,11 @@
 
 #include <Arduino.h>
 
+#define IPIN0 8
+#define IPIN1 10
+#define IPIN2 11
+#define IPIN3 9
+
 void println(String input){
     Serial.println(input);
 }
