@@ -2,6 +2,7 @@
 #define PRINT_H
 
 #include <Arduino.h>
+#include <EEPROM.h>
 
 #define IPIN0 8
 #define IPIN1 10
@@ -46,13 +47,5 @@ void print(int8_t **input, int size){
     }
     Serial.print(")");
 }
-
-void fill(int8_t *input, int size, int8_t value){
-    for(int i = 0; i < size; i++){
-        input[i] = value;
-    }
-}
-
-
 
 #endif

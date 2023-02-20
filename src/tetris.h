@@ -389,13 +389,15 @@ class Tetris {
         }
    
     public:
-        void start_game(){
+        int play(){
             uint8_t status = 0;
             int waitTime = DWAIT;
             unsigned long ntime = 0;
             uint8_t btn[4] = {1,1,1,1};
             uint8_t pbtn[4] = {1,1,1,1};    
             uint8_t piecesCounter = 0;
+            score = 0; 
+            
 
             draw_grid();
 
@@ -407,7 +409,7 @@ class Tetris {
                 if(piecesCounter > 4){
                     piecesCounter = 0; 
                     
-                    if((waitTime -= ACCEL) >= 0){
+                    if((waitTime -= ACCEL) >= 500){
                         waitTime -= ACCEL;
                     }
                 }
@@ -454,6 +456,7 @@ class Tetris {
                 }
             }
             draw_gameover();
+            return score;
         }
 
 };

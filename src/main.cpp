@@ -1,9 +1,8 @@
-//#include "utilities.h"
 #include "tetris.h"
 #include "display.h"
-//#include "avr8-stub.h"
-//#include "app_api.h"
+#include "menu.h"
 
+Menu m;
 Tetris t;
 
 void initBtns(){
@@ -13,15 +12,24 @@ void initBtns(){
     pinMode(IPIN3, INPUT_PULLUP);
 }
 
+int score = 0;
+
 void setup() {
 
     Serial.begin(9600);
     initBtns();
     initDisplay();
+    
+    m = Menu();
     t = Tetris();
-    t.start_game();
-}
+    score = t.play();
+};
 
 void loop() {
 
+    if(digitalRead(IPIN0)==0){
+        display.setRotation(0); 
+        score = t.play();
+        m.setScore(0, score);
+    }
 }
