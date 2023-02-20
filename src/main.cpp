@@ -27,9 +27,9 @@ void setup() {
 
 void loop() {
 
-    if(digitalRead(IPIN0)==0){
+    /*if(digitalRead(IPIN0)==0){
         display.setRotation(0); 
         score = t.play();
         m.setScore(0, score);
-    }
+    }*/
 }
