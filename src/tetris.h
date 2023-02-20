@@ -329,7 +329,7 @@ class Tetris {
             for(uint8_t x = 0; x < MATRIX_W; x++){
                 for(uint8_t y = 0; y < MATRIX_H; y++){
                     if(matrix[x][y] > 0){
-                        drawBox(y*BOXSIZE,x*BOXSIZE,true);
+                        drawBox(x*BOXSIZE,y*BOXSIZE,true);
                     }
                 }
             }
@@ -352,9 +352,9 @@ class Tetris {
         };
 
         void draw_grid(){
-            for (uint8_t y = 0; y < SCREEN_HEIGHT; y+=BOXSIZE){
-                for (uint8_t x = 0; x < SCREEN_WIDTH; x+=BOXSIZE){
-                    drawBox(x,y,false);
+            for (uint8_t y = 0; y < MATRIX_W * BOXSIZE; y+=BOXSIZE){   //SCREEN_HEIGHT
+                for (uint8_t x = 0; x < MATRIX_H * BOXSIZE; x+=BOXSIZE){ //SCREEN_WIDTH
+                    drawBox(y,x,false);
                 }
             }
         }
@@ -367,7 +367,7 @@ class Tetris {
                 display.display();
                 delay(25);
                 display.clearDisplay();
-                display.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SSD1306_WHITE);
+                display.fillRect(0, 0, SCREEN_HEIGHT, SCREEN_WIDTH, SSD1306_WHITE);
                 display.display();
                 delay(50);
             }
@@ -390,6 +390,7 @@ class Tetris {
    
     public:
         int play(){
+            display.setRotation(3);
             uint8_t status = 0;
             int waitTime = DWAIT;
             unsigned long ntime = 0;
@@ -433,11 +434,11 @@ class Tetris {
                         }
 
                         if(btn[1] == 0){
-                            moveX(1);
+                            moveX(-1);
                         }
                         
                         if(btn[2] == 0){
-                            moveX(-1);
+                            moveX(1);
                         }
 
                         if(btn[3] == 0){
@@ -456,6 +457,7 @@ class Tetris {
                 }
             }
             draw_gameover();
+            display.setRotation(0);
             return score;
         }
 
